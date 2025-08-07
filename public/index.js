@@ -3,9 +3,15 @@ const eventSource = new EventSource("/api/goldprice")
 const liveContainer = document.getElementById('price-display')
 const investmentForm = document.querySelector('form')
 const dialog = document.querySelector('dialog')
+const statusEl = document.getElementById('connection-status')
+
 let currentGoldPrice = null
 
 // Handle live price updates
+
+eventSource.onopen = () => {
+    statusEl.textContent = 'Live Price 🟢'
+}
 
 
 eventSource.onmessage = (event) => {
@@ -18,6 +24,7 @@ eventSource.onmessage = (event) => {
 // Handle connection loss
 
 eventSource.onerror = () => {
+    statusEl.textContent = 'Disconnected 🔴'
     console.log("Connetion lost. Attempting to connect...")
 }
 
