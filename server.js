@@ -1,6 +1,7 @@
 import http from 'node:http'
 import path from 'node:path'
 import fs from 'node:fs/promises'
+import { getContentType } from './utils/getContentType.js'
 
 const PORT = 8000
 
@@ -15,15 +16,7 @@ const server = http.createServer( async (req, res) => {
     )
 
     const ext = path.extname(filePath)
-
-    const types = {
-        ".js": "text/javascript",
-        ".css": "text/css",
-        ".json": "text/json",
-        ".png": "image/png"
-    }
-
-    const contentType = types[ext.toLowerCase()] || 'text/html'
+    const contentType = getContentType(ext)
 
     try {
         const content = await fs.readFile(filePath)
