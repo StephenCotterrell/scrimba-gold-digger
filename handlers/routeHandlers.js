@@ -5,20 +5,30 @@ export async function getGoldPrice(req, res) {
     res.setHeader('Content-Type', 'text/event-stream')
     res.setHeader('Cache-Control', 'no-cache')
     res.setHeader('Connection', 'keep-alive')
+    res.setHeader('Transfer-Encoding', 'chunked')
 
     let currentGoldPrice = 3432.20
 
-    setInterval(() => {
-        let randomPriceFluctuation = Math.floor(((Math.random() - 0.5) * 2000))/100
+    const sendPrice = () => {
+        const randomPriceFluctuation = Math.floor(((Math.random() - 0.5) * 2000))/100
         currentGoldPrice += randomPriceFluctuation
-
+        
         res.write(`data: ${
             JSON.stringify({
                 event: 'price-change',
                 price: currentGoldPrice.toFixed(2)
             })
         }\n\n`)
-    }, 3000)
+    }
+
+    sendPrice()
+
+    const intervalId = setInterval(sendPrice, 3000)
+
+    req.on('close', () => {
+        console.log('Client disconnected, cleaning up...') 
+        clearInterval(intervalId)
+    })
 }
 
 export function handleOnlyGetAllowed(res) {
