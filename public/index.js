@@ -5,6 +5,9 @@ const investmentForm = document.querySelector('form')
 const dialog = document.querySelector('dialog')
 const statusEl = document.getElementById('connection-status')
 
+// Attach event listener to the dialog box to close when it's clicked 
+dialog.querySelector('button').addEventListener('click',() => dialog.close())
+
 let currentGoldPrice = null
 
 // Handle live price updates
@@ -42,13 +45,42 @@ investmentForm.addEventListener('formdata', (e) => {
         console.log(`User wants to invest ${amount}`)
         console.log(`Current gold price $${currentGoldPrice}`)
 
-        const summary = document.getElementById('investment-summary')
-        const ounces = (amount / currentGoldPrice).toFixed(3)
+        
+        try {
+            fetch('/api/invest', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }, 
+                body: JSON.stringify({
+                    investment: amount,
+                    goldPrice: currentGoldPrice
+                })
+            })
+            .then(res => {
+                if (!res.ok) {
+                    throw new Error(`Server error: ${res.status}`)
+                }
+                return res.json()
+            })
+            .then(data => {
+                console.log('Investment recorded:', data)
+                
+                const summary = document.getElementById('investment-summary')
+                const ounces = (amount / currentGoldPrice).toFixed(3)
+        
+                summary.textContent = `You just purchased ${ounces} ounces of gold for $${amount.toFixed(2)}. You will receieve documentation shortly.`
+                
+                document.querySelector('dialog').showModal()
 
-        summary.textContent = `You just purchased ${ounces} ounces of gold for $${amount.toFixed(2)}. You will receieve documentation shortly.`
+            })
+            .catch(err => {
+                console.error('Error submitting investment:', err)
+            })
+        } catch (err) {
 
-        dialog.showModal()
-        dialog.querySelector('button').addEventListener('click',() => dialog.close())
+        }
+
     }
 
     data.append('gold-price', currentGoldPrice)

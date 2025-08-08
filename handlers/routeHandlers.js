@@ -1,4 +1,6 @@
-
+import { sendResponse } from "../utils/sendResponse.js"
+import fs from 'node:fs'
+import path from 'node:path'
 
 export async function getGoldPrice(req, res) {
     res.statusCode = 200
@@ -31,8 +33,57 @@ export async function getGoldPrice(req, res) {
     })
 }
 
-export function handleOnlyGetAllowed(res) {
-    res.setHeader('Allowed', 'GET'),
+export function handleMethodNotAllowed(res, allowedMethods) {
+    res.setHeader('Allowed', allowedMethods),
     sendResponse(res, 405, 'application/json', JSON.stringify({ error: 'Method Not Allowed'}))
+}
+
+export async function postInvestment(req, res) {
+    
+    let body = ''
+
+    req.on('data', chunk => {
+        body += chunk
+    })
+
+    req.on('end', () => {
+        try {
+            const { investment, goldPrice } = JSON.parse(body)
+
+            // validate input 
+
+            if (typeof investment !== 'number' || typeof goldPrice !== 'number') {
+                sendResponse(res, 400, 'application/json', JSON.stringify({ error: 'Invalid Input...'}))
+            }
+
+            // TODO: Some kind of logging of this transaction, to an actual file
+
+            const timestamp = new Date().toISOString()
+
+            const logEntry = `${timestamp} | Investment: $${investment} | Gold Price: $${goldPrice} / ounce | Amount: ${ (investment / goldPrice).toFixed(4)} ounces`
+
+            const logPath = path.join(process.cwd(), 'data', 'transactions.txt')
+
+            fs.appendFile(logPath, logEntry, err => {
+                if (err) {
+                    console.error('Error writing log:', err)
+                }
+            })
+
+
+
+            sendResponse(res, 200, 'application/json', JSON.stringify({
+                status: 'success',
+                investment, 
+                goldPrice,
+                timestamp: Date.now()
+            }))
+        } catch (err) {
+            sendResponse(res, 500, 'application/json', JSON.stringify({
+                error: 'Server Error'
+            }))
+        }
+    })
+    
 }
 
