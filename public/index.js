@@ -9,6 +9,7 @@ const statusEl = document.getElementById('connection-status')
 dialog.querySelector('button').addEventListener('click',() => dialog.close())
 
 let currentGoldPrice = null
+let goldPriceToken = null 
 
 // Handle live price updates
 
@@ -17,18 +18,23 @@ eventSource.onopen = () => {
 }
 
 
-eventSource.onmessage = (event) => {
+eventSource.addEventListener('price-change', (event) => {
     const data = JSON.parse(event.data)
-    const price = data.price 
+    const price = data.price
+    goldPriceToken = {
+        p: data.p,
+        t: data.t,
+        sig: data.sig
+    }
     currentGoldPrice = parseFloat(price)
     liveContainer.textContent = price
-}
+})
 
 // Handle connection loss
 
 eventSource.onerror = () => {
     statusEl.textContent = 'Disconnected 🔴'
-    console.log("Connetion lost. Attempting to connect...")
+    console.log("Connection lost. Attempting to connect...")
 }
 
 investmentForm.addEventListener('submit', (e) => {
@@ -44,8 +50,6 @@ investmentForm.addEventListener('formdata', (e) => {
     if (!isNaN(amount) && !isNaN(currentGoldPrice)) {
         console.log(`User wants to invest ${amount}`)
         console.log(`Current gold price $${currentGoldPrice}`)
-
-        
         try {
             fetch('/api/invest', {
                 method: 'POST',
@@ -54,7 +58,10 @@ investmentForm.addEventListener('formdata', (e) => {
                 }, 
                 body: JSON.stringify({
                     investment: amount,
-                    goldPrice: currentGoldPrice
+                    goldPrice: currentGoldPrice,
+                    p: goldPriceToken.p,
+                    t: goldPriceToken.t,
+                    sig: goldPriceToken.sig
                 })
             })
             .then(res => {

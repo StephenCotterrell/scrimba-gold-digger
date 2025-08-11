@@ -1,1 +1,23 @@
-2025-08-08T19:05:10.476Z | Investment: $100 | Gold Price: $3425.47 / ounce | Amount: 0.0292
+2025-08-09T00:59:22.812Z | Investment: $100 | Gold Price: $3374.76 / ounce | Amount: 0.0296 ounces
+2025-08-09T01:00:23.898Z | Investment: $100 | Gold Price: $3435.25 / ounce | Amount: 0.0291 ounces 
+
+2025-08-09T01:02:25.475Z | Investment: $100 | Gold Price: $3429.97 / ounce | Amount: 0.0292 ounces 
+
+2025-08-09T01:03:19.315Z | Investment: $100 | Gold Price: $3426.59 / ounce | Amount: 0.0292 ounces 
+
+2025-08-09T01:09:12.362Z | Investment: $100 | Gold Price: $3431.49 / ounce | Amount: 0.0291 ounces 
+
+2025-08-09T01:09:57.396Z | Investment: $100 | Gold Price: $3434.62 / ounce | Amount: 0.0291 ounces 
+
+2025-08-09T01:10:49.921Z | Investment: $100 | Gold Price: $3432.21 / ounce | Amount: 0.0291 ounces 
+
+2025-08-09T01:15:33.275Z | Investment: $100 | Gold Price: $3444.02 / ounce | Amount: 0.0290 ounces 
+
+2025-08-09T01:16:07.078Z | Investment: $100 | Gold Price: $3425.78 / ounce | Amount: 0.0292 ounces 
+
+2025-08-09T01:16:44.725Z | Investment: $100 | Gold Price: $3429.33 / ounce | Amount: 0.0292 ounces 
+
+2025-08-09T01:23:46.501Z | Investment: $6 | Gold Price: $3417.99 / ounce | Amount: 0.0018 ounces 
+
+2025-08-11T22:22:56.602Z | Investment: $100 | Gold Price: $3437.17 / ounce | Amount: 0.0291 ounces 
+

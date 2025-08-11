@@ -1,10 +1,14 @@
 import { sendResponse } from "../utils/sendResponse.js"
 import fs from 'node:fs'
 import path from 'node:path'
+import { makePriceToken } from "../utils/token.js"
+import { verifyPriceToken } from "../utils/token.js"
+import { isUsed, markUsed } from "../utils/replayCache.js"
+
 
 export async function getGoldPrice(req, res) {
     res.statusCode = 200
-    res.setHeader('Content-Type', 'text/event-stream')
+    res.setHeader('Content-Type', 'text/event-stream; charset=utf-8')
     res.setHeader('Cache-Control', 'no-cache')
     res.setHeader('Connection', 'keep-alive')
     res.setHeader('Transfer-Encoding', 'chunked')
@@ -15,12 +19,18 @@ export async function getGoldPrice(req, res) {
         const randomPriceFluctuation = Math.floor(((Math.random() - 0.5) * 2000))/100
         currentGoldPrice += randomPriceFluctuation
         
-        res.write(`data: ${
-            JSON.stringify({
-                event: 'price-change',
-                price: currentGoldPrice.toFixed(2)
-            })
-        }\n\n`)
+        const pCents = Math.round(currentGoldPrice * 100)
+        const token = makePriceToken(pCents)
+
+        res.write(
+                `event: price-change\n` +
+                `data: ${JSON.stringify({
+                    price: currentGoldPrice.toFixed(2),
+                    p: token.p, 
+                    t: token.t, 
+                    sig: token.sig,
+                })}\n\n`
+        )
     }
 
     sendPrice()
@@ -34,7 +44,7 @@ export async function getGoldPrice(req, res) {
 }
 
 export function handleMethodNotAllowed(res, allowedMethods) {
-    res.setHeader('Allowed', allowedMethods),
+    res.setHeader('Allow', allowedMethods),
     sendResponse(res, 405, 'application/json', JSON.stringify({ error: 'Method Not Allowed'}))
 }
 
@@ -48,20 +58,31 @@ export async function postInvestment(req, res) {
 
     req.on('end', () => {
         try {
-            const { investment, goldPrice } = JSON.parse(body)
-
-            // validate input 
-
+            const { investment, goldPrice, p, t, sig} = JSON.parse(body)
+            
             if (typeof investment !== 'number' || typeof goldPrice !== 'number') {
-                sendResponse(res, 400, 'application/json', JSON.stringify({ error: 'Invalid Input...'}))
+                return sendResponse(res, 400, 'application/json', JSON.stringify({ error: 'Invalid Input...'}))
             }
 
-            // TODO: Some kind of logging of this transaction, to an actual file
+            const v = verifyPriceToken({ p, t, sig})
+            if (!v.ok) {
+                console.warn('verifyPriceToken failed:', v.reason)
+                return sendResponse(res, 422, 'application/json', JSON.stringify({ error: 'Unprocessable entity...'}))
+            }
+
+            if (Math.round(goldPrice * 100) !== p) {
+                return sendResponse(res, 422, 'application/json', JSON.stringify({ error: 'Price mismatch...'}))
+            }
+
+            if (isUsed(sig)) {
+                return sendResponse(res, 409, 'application/json', JSON.stringify({ error: "Token already used..."}))
+            }
+
+            markUsed(sig, t)
+            
 
             const timestamp = new Date().toISOString()
-
-            const logEntry = `${timestamp} | Investment: $${investment} | Gold Price: $${goldPrice} / ounce | Amount: ${ (investment / goldPrice).toFixed(4)} ounces`
-
+            const logEntry = `${timestamp} | Investment: $${investment} | Gold Price: $${goldPrice} / ounce | Amount: ${ (investment / goldPrice).toFixed(4)} ounces \n\n`
             const logPath = path.join(process.cwd(), 'data', 'transactions.txt')
 
             fs.appendFile(logPath, logEntry, err => {
@@ -69,8 +90,6 @@ export async function postInvestment(req, res) {
                     console.error('Error writing log:', err)
                 }
             })
-
-
 
             sendResponse(res, 200, 'application/json', JSON.stringify({
                 status: 'success',
