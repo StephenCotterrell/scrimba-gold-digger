@@ -1,6 +1,9 @@
 import http from 'node:http'
 import { serveStatic } from './utils/serveStatic.js'
 import { getGoldPrice, handleMethodNotAllowed, postInvestment } from './handlers/routeHandlers.js'
+import { startAutoPrune } from './utils/replayCache.js'
+
+startAutoPrune();
 
 const PORT = 8000
 
