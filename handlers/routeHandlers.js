@@ -4,6 +4,9 @@ import path from 'node:path'
 import { makePriceToken } from "../utils/token.js"
 import { verifyPriceToken } from "../utils/token.js"
 import { isUsed, markUsed } from "../utils/replayCache.js"
+import PDFDocument from 'pdfkit';
+import { v4 as uuidv4 } from 'uuid'
+import { getTransactionById } from "../utils/transactions.js"
 
 
 export async function getGoldPrice(req, res) {
@@ -92,9 +95,12 @@ export async function postInvestment(req, res) {
 
             markUsed(sig, t)
             
-
+            const recieptId = uuidv4();
             const timestamp = new Date().toISOString()
-            const logEntry = `${timestamp} | Investment: $${investment} | Gold Price: $${goldPrice} / ounce | Amount: ${ (investment / goldPrice).toFixed(4)} ounces \n\n`
+            const ounces = investment / goldPrice
+
+            // human readable log 
+            const logEntry = `${timestamp} | ID: ${recieptId} | Investment: $${investment} | Gold Price: $${goldPrice} / ounce | Amount: ${ (investment / goldPrice).toFixed(4)} ounces \n\n`
             const logPath = path.join(process.cwd(), 'data', 'transactions.txt')
 
             fs.appendFile(logPath, logEntry, err => {
@@ -103,11 +109,21 @@ export async function postInvestment(req, res) {
                 }
             })
 
+            // machine readable log
+
+            const jsonlPath = path.join(process.cwd(), 'data', 'transactions.ndjson')
+            const record = { id: recieptId, ts: timestamp, investment, goldPrice, ounces: Number(ounces.toFixed(4)) }
+            fs.appendFile(jsonlPath, JSON.stringify(record) + '\n', err => {
+                if (err) console.error('Error writing jsonl', + err)
+            })
+
+
             sendResponse(res, 200, 'application/json', JSON.stringify({
                 status: 'success',
                 investment, 
                 goldPrice,
-                timestamp: Date.now()
+                timestamp: Date.now(),
+                receiptId: recieptId
             }))
         } catch (err) {
             sendResponse(res, 500, 'application/json', JSON.stringify({
@@ -116,5 +132,77 @@ export async function postInvestment(req, res) {
         }
     })
     
+}
+
+export async function handleReceiptPdf(req, res, id) {
+
+    const tx = await getTransactionById(id)
+
+    if (!tx) {
+        return sendResponse(res, 404, 'application/json', JSON.stringify({
+            error: 'Receipt not found', id
+        }))
+    }
+
+    const now = new Date();
+
+    res.writeHead(200, {
+        'Content-Type': 'application/pdf',
+        'Content-Disposition': `inline; filename="receipt-${id}.pdf"`,
+        'Cache-Control': 'no-store',
+        'X-Content-Type-Options': 'nosniff'
+    })
+
+    const doc = new PDFDocument({ size: 'A4', margin: 50 })
+    doc.on('error', (err) => { try { res.destroy(err) } catch {} })
+    // doc.on('close', () => { try { doc.end() } catch {} })
+
+    doc.pipe(res)
+
+    doc.info = {
+        Title: `Receipt ${id}`,
+        Author: `Gold Digger`,
+        Subject: 'Purchase Receipt',
+        CreationDate: now
+    }
+    
+    // Header 
+    doc.font('Helvetica').fontSize(18).text('Receipt')
+    doc.moveDown(0.5)
+    doc.font('Helvetica').fontSize(12)
+    doc.text(`Receipt ID: ${tx.id}`)
+    doc.text(`Date: ${tx.ts}`)
+    doc.moveDown()
+
+    // Summary Block
+
+    const usd = (n) => `$${Number(n).toFixed(2)}`
+
+    doc.font('Helvetica-Bold').text('Summary')
+    doc.font('Helvetica')
+    doc.text(`Investment: ${usd(tx.investment)}`)
+    doc.text(`Gold Price: ${usd(tx.goldPrice)} per ounce`)
+    doc.text(`Amount Purchased: ${tx.ounces.toFixed(4)} ounces`)
+    doc.moveDown()
+
+    // Footer()
+
+    const drawFooter = (d) => {
+        const { width, height } = d.page;
+        d.font('Helvetica').fontSize(9)
+        .text(`Gold Digger | Receipt ${tx.id} | Generated ${now.toLocaleString()}`, 50, height - 70, { width: width - 100, align: 'center'})
+    }
+
+    drawFooter(doc)
+    doc.on('pageAdded', () => drawFooter(doc))
+
+    doc.end()
+
+}
+
+export function handleForbidden(req, res) {
+    sendResponse(res, 403, 'application/json', JSON.stringify({
+        error: 'Forbidden'
+    }))
 }
 
