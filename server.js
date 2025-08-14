@@ -1,31 +1,47 @@
 import http from 'node:http'
 import { serveStatic } from './utils/serveStatic.js'
-import { getGoldPrice, handleMethodNotAllowed, postInvestment } from './handlers/routeHandlers.js'
+import { getGoldPrice, handleApiNotFound, handleMethodNotAllowed, postInvestment } from './handlers/routeHandlers.js'
 import { startAutoPrune } from './utils/replayCache.js'
+import { URL } from 'node:url';
 
 startAutoPrune();
 
 const PORT = 8000
-
 const __dirname = import.meta.dirname
+
+const recieptRoute = /^\/api\/receipt\/([^/]+)\/?$/;
 
 const server = http.createServer( async (req, res) => {
 
-    if (req.url === '/api/goldprice') {
-        if (req.method === 'GET') {
+    const { pathname } = new URL(req.url, 'http://x') 
+    
+    // API Branch 
+    if (pathname.startsWith('/api/')) {
+        
+        const m = recieptRoute.exec(pathname)
+        if (m) {
+            if (req.method !== 'GET') return handleMethodNotAllowed(res, ['GET'])
+            const id = decodeURIComponent(m[1])
+            // TODO: Handle the case where there's a route after the reciept
+            // return handleRecieptPdf(req, res, id)
+        } 
+          
+        if (pathname === '/api/goldprice') {
+            if (req.method !== 'GET') return handleMethodNotAllowed(res, ['GET'])
             return await getGoldPrice(req, res)
-        } else {
-            return handleMethodNotAllowed(res, 'GET')
-        }
-    } else if (req.url.startsWith('/api/invest')) {
-        if (req.method === 'POST') {
+        } 
+
+        if (pathname === '/api/invest') {
+            if (req.method !== 'POST') return handleMethodNotAllowed(res, ['POST'])
             return await postInvestment(req, res)
-        } else {
-            return handleMethodNotAllowed(res, 'POST')
         }
-    } else {
-        return await serveStatic(req, res, __dirname)
-    }
+
+        return handleApiNotFound(req, res)
+
+    } 
+    
+    return await serveStatic(req, res, __dirname)
+    
 })
 
 
