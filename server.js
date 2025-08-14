@@ -1,15 +1,16 @@
 import http from 'node:http'
 import { serveStatic } from './utils/serveStatic.js'
-import { getGoldPrice, handleApiNotFound, handleMethodNotAllowed, postInvestment } from './handlers/routeHandlers.js'
+import { getGoldPrice, handleApiNotFound, handleMethodNotAllowed, postInvestment, handleReceiptPdf } from './handlers/routeHandlers.js'
 import { startAutoPrune } from './utils/replayCache.js'
 import { URL } from 'node:url';
+import path from 'node:path'
 
 startAutoPrune();
 
 const PORT = 8000
 const __dirname = import.meta.dirname
 
-const recieptRoute = /^\/api\/receipt\/([^/]+)\/?$/;
+const receiptRoute = /^\/api\/receipt\/([^/]+)\/?$/;
 
 const server = http.createServer( async (req, res) => {
 
@@ -18,12 +19,12 @@ const server = http.createServer( async (req, res) => {
     // API Branch 
     if (pathname.startsWith('/api/')) {
         
-        const m = recieptRoute.exec(pathname)
+        const m = receiptRoute.exec(pathname)
         if (m) {
             if (req.method !== 'GET') return handleMethodNotAllowed(res, ['GET'])
             const id = decodeURIComponent(m[1])
-            // TODO: Handle the case where there's a route after the reciept
-            // return handleRecieptPdf(req, res, id)
+            // TODO: Handle the case where there's a route after the receipt
+            return handleReceiptPdf(req, res, id)
         } 
           
         if (pathname === '/api/goldprice') {
@@ -41,7 +42,7 @@ const server = http.createServer( async (req, res) => {
     } 
     
     return await serveStatic(req, res, __dirname)
-    
+
 })
 
 
