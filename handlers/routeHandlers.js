@@ -48,6 +48,18 @@ export function handleMethodNotAllowed(res, allowedMethods) {
     sendResponse(res, 405, 'application/json', JSON.stringify({ error: 'Method Not Allowed'}))
 }
 
+export function handleApiNotFound(req, res) {
+    const { pathname } = new URL(req.url, 'http://x')
+    sendResponse(res, 404, 'application/json', JSON.stringify({
+        status: 404,
+        error: 'Not Found',
+        message: `No API route found for ${pathname}`,
+        path: pathname,
+        method: req.method,
+        timestamp: new Date().toISOString()
+    }))
+}
+
 export async function postInvestment(req, res) {
     
     let body = ''
