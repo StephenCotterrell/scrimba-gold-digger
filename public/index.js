@@ -72,11 +72,23 @@ investmentForm.addEventListener('formdata', (e) => {
             })
             .then(data => {
                 console.log('Investment recorded:', data)
+
+                const row = document.getElementById('receipt-row')
+                const viewA = document.getElementById('receipt-link')
+                const dlA = document.getElementById('receipt-download')
+
+                const url = `api/receipt/${encodeURIComponent(data.receiptId)}`
+
+                viewA.href = url
+                dlA.href = url
+                dlA.download = `receipt-${data.receiptId}.pdf`
+
+                row.style.display = ''
                 
                 const summary = document.getElementById('investment-summary')
                 const ounces = (amount / currentGoldPrice).toFixed(3)
         
-                summary.textContent = `You just purchased ${ounces} ounces of gold for $${amount.toFixed(2)}. You will receieve documentation shortly.`
+                summary.textContent = `You just purchased ${ounces} ounces of gold for $${amount.toFixed(2)}. Please download a copy of your receipt below.`
                 
                 document.querySelector('dialog').showModal()
 

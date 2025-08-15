@@ -21,3 +21,37 @@
 
 2025-08-11T22:22:56.602Z | Investment: $100 | Gold Price: $3437.17 / ounce | Amount: 0.0291 ounces 
 
+2025-08-11T23:31:36.377Z | Investment: $100 | Gold Price: $3462.38 / ounce | Amount: 0.0289 ounces 
+
+2025-08-14T01:34:47.873Z | Investment: $100 | Gold Price: $3430.82 / ounce | Amount: 0.0291 ounces 
+
+2025-08-14T01:36:06.818Z | Investment: $100 | Gold Price: $3433.32 / ounce | Amount: 0.0291 ounces 
+
+2025-08-14T01:37:38.423Z | Investment: $100 | Gold Price: $3427.16 / ounce | Amount: 0.0292 ounces 
+
+2025-08-14T03:17:28.655Z | Investment: $100 | Gold Price: $3431.7 / ounce | Amount: 0.0291 ounces 
+
+2025-08-14T18:53:21.879Z | Investment: $100 | Gold Price: $3426.28 / ounce | Amount: 0.0292 ounces 
+
+2025-08-14T21:17:20.864Z | Investment: $100 | Gold Price: $3440.24 / ounce | Amount: 0.0291 ounces 
+
+2025-08-14T22:29:11.375Z | ID: c545aa0c-b209-40a2-b8cc-fe7ed820c6b8 | Investment: $100 | Gold Price: $3433.48 / ounce | Amount: 0.0291 ounces 
+
+2025-08-14T22:31:29.146Z | ID: 52816358-16ac-48ec-9319-dc82bd768c1b | Investment: $100 | Gold Price: $3459.5 / ounce | Amount: 0.0289 ounces 
+
+2025-08-14T22:39:44.307Z | ID: 47011bfc-7e51-4301-9294-d9dfbbbe3a0c | Investment: $100 | Gold Price: $3424.55 / ounce | Amount: 0.0292 ounces 
+
+2025-08-14T22:39:59.570Z | ID: efabad99-ca3f-4984-bde0-487ba8d5752e | Investment: $100 | Gold Price: $3441.95 / ounce | Amount: 0.0291 ounces 
+
+2025-08-14T22:40:34.971Z | ID: 8a172012-bf55-4fcb-8945-477198cf6183 | Investment: $100 | Gold Price: $3423.4 / ounce | Amount: 0.0292 ounces 
+
+2025-08-14T22:41:25.316Z | ID: 1bdaa656-7317-4379-adf9-6e85e1e13f03 | Investment: $100 | Gold Price: $3427.98 / ounce | Amount: 0.0292 ounces 
+
+2025-08-14T22:41:33.502Z | ID: 1096344e-aa7a-4886-a23c-32b38828940b | Investment: $10 | Gold Price: $3430.6 / ounce | Amount: 0.0029 ounces 
+
+2025-08-14T23:26:09.147Z | ID: 4d7c9a70-1710-4c93-89b2-a78ec3c57f04 | Investment: $10 | Gold Price: $3446.76 / ounce | Amount: 0.0029 ounces 
+
+2025-08-14T23:26:56.114Z | ID: 63f94544-72e7-4444-a7ae-dbfb003e5e23 | Investment: $10 | Gold Price: $3423.2 / ounce | Amount: 0.0029 ounces 
+
+2025-08-14T23:27:46.688Z | ID: 38440f55-9bbe-4e4a-97d9-e4fe6fdff067 | Investment: $14 | Gold Price: $3433.47 / ounce | Amount: 0.0041 ounces 
+
